@@ -23,14 +23,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", document.find(Class("user-following-container")).count());
     println!("{}", document.find(Class("follow")).count());
     println!("{}", document.find(Class("d-inline-block")).count());
-    println!("{}", document.find(Class("link-gray pl-1")).count());
+    println!("{}", document.find(Class("link-gray")).count());
 
-    for node in document.find(Class("d-inline-block")).take(3){
-        println!("d-inline-block: {}", node.text());
+    for node in document.find(Class("link-gray")).take(3){
+        println!("link-gray: {}", node.text());
     }
-    for node in document.find(Class("follow")).take(3){
-        
-        println!("following: {}", node.text());
+    for node in document.find(Class("pl-1")).take(3){
+        println!("pl-1: {}", node.text());
     }
    
     println!("# Menu");
