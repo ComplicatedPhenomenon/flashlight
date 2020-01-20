@@ -9,3 +9,7 @@ edition = "2018"
 [dependencies]
 reqwest = { version = "0.10", features = ["json"] }
 tokio = { version = "0.2", features = ["full"] }
+# github-rs = "0.7"
+# serde_json = "1.0"
+# hyper = "0.12.35"
+# select = "0.4.3"
