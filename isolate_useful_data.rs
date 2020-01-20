@@ -1,13 +1,11 @@
 extern crate select;
 use select::document::Document;
 use select::predicate::{Predicate, Attr, Class, Name};
-pub use select::node;
 
-//use std::fs::File;
-//use std::io::prelude::*;
+use std::fs::File;
+use std::io::prelude::*;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     /*
     let mut body = reqwest::get("https://stackoverflow.com/questions/tagged/rust?sort=votes&pageSize=50")
         .await?
@@ -17,22 +15,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut file = File::create("src/stackoverflow.html")?;
     file.write(body.as_bytes())?;*/
 
-    // stackoverflow.html was fetched from http://stackoverflow.com/questions/tagged/rust?sort=votes&pageSize=50 
-    let document = Document::from(include_str!("../szaghi.html"));
-    //  link-gray pl-1
-    println!("{}", document.find(Class("user-following-container")).count());
-    println!("{}", document.find(Class("follow")).count());
-    println!("{}", document.find(Class("d-inline-block")).count());
-    println!("{}", document.find(Class("link-gray pl-1")).count());
+    
 
-    for node in document.find(Class("d-inline-block")).take(3){
-        println!("d-inline-block: {}", node.text());
-    }
-    for node in document.find(Class("follow")).take(3){
-        
-        println!("following: {}", node.text());
-    }
-   
+    // stackoverflow.html was fetched from
+    // http://stackoverflow.com/questions/tagged/rust?sort=votes&pageSize=50 on
+    // Aug 10, 2015.
+    let document = Document::from(include_str!("../stackoverflow.html"));
+
     println!("# Menu");
     for node in document.find(Attr("id", "hmenus").descendant(Name("a"))) {
         println!("{} ({:?})", node.text(), node.attr("href").unwrap());
