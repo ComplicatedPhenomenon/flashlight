@@ -1,80 +1,52 @@
+extern crate reqwest;
 extern crate select;
 use select::document::Document;
-use select::predicate::{Predicate, Attr, Class, Name};
+use select::predicate::{Class};
 pub use select::node;
-
-//use std::fs::File;
+use std::collections::HashSet;
+use std::fs::File;
 //use std::io::prelude::*;
+use std::io::Read;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /*
-    let mut body = reqwest::get("https://stackoverflow.com/questions/tagged/rust?sort=votes&pageSize=50")
+    let s = "https://github.com/szaghi?tab=following";
+    let mut body = reqwest::get(s)
         .await?
         .text()
         .await?;
+
+    //let mut file = File::create("szaghi.html")?;
+    //file.write(body.as_bytes())?;
     
-    let mut file = File::create("src/stackoverflow.html")?;
-    file.write(body.as_bytes())?;*/
+    //let document = Document::from(include_str!("../szaghi.html"));*/
 
-    // stackoverflow.html was fetched from http://stackoverflow.com/questions/tagged/rust?sort=votes&pageSize=50 
-    let document = Document::from(include_str!("../szaghi.html"));
+
+    //let mut s2 = String::new();
+    //reqwest::get("https://github.com/szaghi?tab=following").read_to_string(&mut s2)?;
     //  link-gray pl-1
-    println!("{}", document.find(Class("user-following-container")).count());
-    println!("{}", document.find(Class("follow")).count());
-    println!("{}", document.find(Class("d-inline-block")).count());
-    println!("{}", document.find(Class("link-gray")).count());
+    let s = r#"<div class="d-table-cell col-9 v-align-top pr-3">
+                   <a class="d-inline-block no-underline mb-1" data-hovercard-type="user" data-hovercard-url="/users/reinh-bader/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="/reinh-bader">
+                       <span class="f4 link-gray-dark"></span>
+                       <span class="link-gray pl-1">reinh-bader</span>
+                   </a>
+               </div>"#;
+    let document = Document::from(s);
 
-    for node in document.find(Class("link-gray")).take(3){
-        println!("link-gray: {}", node.text());
+    println!("{}", document.find(Class("link-gray")).count());
+    println!("{}", document.find(Class("pl-1")).count());
+
+    let mut following_name = HashSet::new();
+    for node in document.find(Class("pl-1")){
+        //println!("pl-1: {}", node.text());
+        following_name.insert(node.text());
     }
-    for node in document.find(Class("pl-1")).take(3){
-        println!("pl-1: {}", node.text());
+
+    for name in &following_name{
+        println!("{}", name);
     }
    
-    println!("# Menu");
-    for node in document.find(Attr("id", "hmenus").descendant(Name("a"))) {
-        println!("{} ({:?})", node.text(), node.attr("href").unwrap());
-    }
-    println!("");
 
-    println!("# Top 5 Questions");
-    for node in document.find(Class("question-summary")).take(5) {
-        let question = node.find(Class("question-hyperlink")).next().unwrap();
-        let votes = node.find(Class("vote-count-post")).next().unwrap().text();
-        let answers = node.find(Class("status").descendant(Name("strong")))
-            .next()
-            .unwrap()
-            .text();
-        let tags = node.find(Class("post-tag")).map(|tag| tag.text()).collect::<Vec<_>>();
-        let asked_on = node.find(Class("relativetime")).next().unwrap().text();
-        let asker = node.find(Class("user-details").descendant(Name("a")))
-            .next()
-            .unwrap()
-            .text();
-        println!(" Question: {}", question.text());
-        println!("  Answers: {}", answers);
-        println!("    Votes: {}", votes);
-        println!("   Tagged: {}", tags.join(", "));
-        println!(" Asked on: {}", asked_on);
-        println!("    Asker: {}", asker);
-        println!("Permalink: http://stackoverflow.com{}",
-                 question.attr("href").unwrap());
-        println!("");
-    }
-
-    println!("# Top 10 Related Tags");
-    for node in document.find(Attr("id", "h-related-tags"))
-        .next()
-        .unwrap()
-        .parent()
-        .unwrap()
-        .find(Name("div"))
-        .take(10) {
-        let tag = node.find(Name("a")).next().unwrap().text();
-        let count = node.find(Class("item-multiplier-count")).next().unwrap().text();
-        println!("{} ({})", tag, count);
-    }
 
     Ok(())
 
