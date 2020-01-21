@@ -4,55 +4,73 @@ use select::document::Document;
 use select::predicate::{Class};
 pub use select::node;
 use std::collections::HashSet;
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::Read;
+//use std::fs::File;
+//use std::io::prelude::*;
+//use std::io::Read;
+use std::fmt; 
+
+
+
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let s = "https://github.com/szaghi?tab=following";
-    let mut body = reqwest::get(s)
+    println!("{}, {}", 7/2, 7%2);
+    let start_from_who = "szaghi";
+    let url = fmt::format(format_args!("https://github.com/{}?page={}&tab=following", start_from_who, 1));
+
+    // https://www.reddit.com/r/rust/comments/a24w5b/passing_string_to_reqwest_not_working/
+    let body = reqwest::get(&url)
         .await?
         .text()
         .await?;
+ 
+    let body_str :&str = &body;
+    let document = Document::from(body_str);
 
-    //let mut file = File::create("szaghi.html")?;
-    //file.write(body.as_bytes())?;
+    /*
+    let mut tup : (String,String,String,String,String,String) = ("0".to_string(), "0".to_string(),"0".to_string(),"0".to_string(),"0".to_string(),"0".to_string(),);
+    println!("Following Number: {}", document.find(Class("hide-sm")).count());
+    let mut i = 0;
+    for node in document.find(Class("hide-sm")){
+        tup.i = node.text().to_string();
+        i = i + 1;
+
+    }*/
+
     
-    //let document = Document::from(include_str!("../szaghi.html"));*/
+    let mut following_number = 0.to_string();
+    let mut i = 0;
+    for node in document.find(Class("hide-sm")){
+        if i < 5 {
+            i = i + 1;
+            continue;
+        }
+        following_number = node.text().to_string();
+    }
+    println!("{}", following_number);
+    let following: u32 = following_number
+        .trim()
+        .parse()
+        .expect("Wanted a number");
+    println!("Following number {:?}", following + 1);
+    
 
-
-    //let mut s2 = String::new();
-    //reqwest::get("https://github.com/szaghi?tab=following").read_to_string(&mut s2)?;
-    //  link-gray pl-1
-    let s = r#"<div class="d-table-cell col-9 v-align-top pr-3">
-                   <a class="d-inline-block no-underline mb-1" data-hovercard-type="user" data-hovercard-url="/users/reinh-bader/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="/reinh-bader">
-                       <span class="f4 link-gray-dark"></span>
-                       <span class="link-gray pl-1">reinh-bader</span>
-                   </a>
-               </div>"#;
-    //println!("{}", body);
-    //println!(r#"{}"#, body);
-    let body_string = String::from(body);
-    println!("{}", s);
-    let document = Document::from(s);
-
-    println!("{}", document.find(Class("link-gray")).count());
-    println!("{}", document.find(Class("pl-1")).count());
-
+    /*
     let mut following_name = HashSet::new();
+    for node in  document.find(Class("hide-sm")){
+        println!("{}", node.text());
+    }
     for node in document.find(Class("pl-1")){
         //println!("pl-1: {}", node.text());
         following_name.insert(node.text());
     }
-
+    */
+    /*
     for name in &following_name{
         println!("{}", name);
     }
-   
-
+    */
 
     Ok(())
-
     
 }
