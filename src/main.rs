@@ -5,7 +5,7 @@ use select::predicate::{Class};
 pub use select::node;
 use std::collections::HashSet;
 use std::fs::File;
-//use std::io::prelude::*;
+use std::io::prelude::*;
 use std::io::Read;
 
 #[tokio::main]
@@ -31,6 +31,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                        <span class="link-gray pl-1">reinh-bader</span>
                    </a>
                </div>"#;
+    //println!("{}", body);
+    //println!(r#"{}"#, body);
+    let body_string = String::from(body);
+    println!("{}", s);
     let document = Document::from(s);
 
     println!("{}", document.find(Class("link-gray")).count());
