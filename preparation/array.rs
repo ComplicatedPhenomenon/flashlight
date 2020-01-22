@@ -9,12 +9,21 @@ fn main(){
     println!("{:?}", tup.2);
 
     let mut tup1 : (i32, i32, i32) = (2, 3, 4);
+    println!("{:?}", tup1);
     //let mut i = 0;
     //tup1.i = 3;
 
     //let mut tup2 = (2);
     //tup2 = tup2 + (3, 4);
     //println!("{:?}", tup2);
+
+    let mut v: Vec<String> = Vec::new();
+    v.push("ComplicatedPhenomenon".to_string());
+    v.push("CZFZDXX".to_string());
+    println!("{:?}", v);
+    for item in &v{
+        println!("{}", item.to_string());
+    }
 
 
 }
