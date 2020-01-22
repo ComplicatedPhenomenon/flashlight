@@ -4,6 +4,7 @@ use select::document::Document;
 use select::predicate::{Class};
 pub use select::node;
 use std::collections::HashSet;
+use std::collections::HashMap;
 //use std::fs::File;
 //use std::io::prelude::*;
 //use std::io::Read;
@@ -13,6 +14,8 @@ use colored::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut output = HashMap::new();
+
     let mut level = 0;
     let mut accumulated_name_set = HashSet::new();
     let mut current_level_names: Vec<String> = Vec::new();
@@ -91,13 +94,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 page_at +=1;
             }
-        accumulated_name_set.insert(who.to_string());
+        output.insert(who.clone(), who_following.clone());
+        accumulated_name_set.insert(who.clone());
         println!("{} is following {:?}", who.red(), who_following);    
         }
     
     println!("{:?}", accumulated_name_set);
     current_level_names = next_level_names;
     level += 1;
+    }
+
+    for (key, value) in output.iter() {
+        println!("{}: {:?}", key, value); 
     }
 
     Ok(())

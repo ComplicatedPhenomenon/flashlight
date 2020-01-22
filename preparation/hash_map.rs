@@ -12,6 +12,7 @@ pub fn call(number: &str) -> &str {
 
 fn main() { 
     let mut contacts = HashMap::new();
+    use std::collections::HashSet;
 
     contacts.insert("Daniel", "798-1364");
     contacts.insert("Ashley", "645-7689");
