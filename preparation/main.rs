@@ -17,7 +17,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut accumulated_name_set = HashSet::new();
     let mut current_level_names: Vec<String> = Vec::new();
     current_level_names.push("dr-guangtou".to_string());
-    while level < 2 {
+    while level < 4 {
         let mut  next_level_names: Vec<String> = Vec::new();
         for who in &current_level_names{
             let mut  who_following: Vec<String> = Vec::new();
@@ -34,17 +34,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         
             let mut  body_str :&str = &body;
             let mut document = Document::from(body_str);
-            
-            for node in document.find(Class("p-org")).take(1){ 
-                for node_1 in document.find(Class("p-label")).take(1){
-                    for  node_2 in document.find(Class("js-user-profile-bio")).take(1){
-                        println!("{} works at: {}, lives in: {}\n descriptions: {}", 
-                        who.to_string().red(),  node.text().to_string().green(), 
-                        node_1.text().to_string().yellow(),
-                        node_2.text().to_string().underline().cyan());
-                    }
-                }    
-            }
             
             // Determine the total number of following's page
             let mut following_number = 0.to_string();
