@@ -1,15 +1,29 @@
-use sqlparser::dialect::GenericDialect;
-use sqlparser::parser::Parser;
+use postgres::{Client, NoTls};
 
-fn main(){
-    let sql = "SELECT a, b, 123, myfunc(b) \
-            FROM table_1 \
-            WHERE a > b AND b < 100 \
-            ORDER BY a DESC, b";
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut client = Client::connect("host=localhost port=5433 user=postgres", NoTls)?;
 
-    let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
+    client.simple_query("
+        CREATE TABLE person (
+            id      SERIAL PRIMARY KEY,
+            name    TEXT NOT NULL,
+            data    BYTEA
+        )
+    ")?;
 
-    let ast = Parser::parse_sql(&dialect, sql.to_string()).unwrap();
+    let name = "Ferris";
+    let data = None::<&[u8]>;
+    client.execute(
+        "INSERT INTO person (name, data) VALUES ($1, $2)",
+        &[&name, &data],
+    )?;
 
-    println!("AST: {:?}", ast);
+    for row in client.query("SELECT id, name, data FROM person", &[])? {
+        let id: i32 = row.get(0);
+        let name: &str = row.get(1);
+        let data: Option<&[u8]> = row.get(2);
+
+        println!("found person: {} {} {:?}", id, name, data);
+    }
+    Ok(())
 }

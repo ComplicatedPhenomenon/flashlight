@@ -17,4 +17,5 @@ select = "0.4.3"
 #diesel = { version = "1.0.0", features = ["postgres"] }
 #dotenv = "0.9.0"
 colored = "1.9.2"
-mysql = "*"
+#mysql = "*"
+postgres = "0.17.0"

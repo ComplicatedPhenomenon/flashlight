@@ -1,3 +1,4 @@
+### Access the useful data
 * start from `szaghi`
 
   https://github.com/szaghi?tab=following
@@ -23,3 +24,8 @@ let s = r#"<div class="d-table-cell col-9 v-align-top pr-3">
            </div>"#;
 let document = Document::from(body_str);
 ```
+
+### Write the output to sql
+run `postgres` via  a normal user without `sudo`
+    
+    https://datagrok.org/unix/a_little_postgres/
