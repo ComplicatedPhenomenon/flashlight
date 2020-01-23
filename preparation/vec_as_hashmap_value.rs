@@ -34,7 +34,7 @@ fn main() {
 
     // `HashMap::iter()` returns an iterator that yields 
     // (&'a key, &'a value) pairs in arbitrary order.
-    for (contact, number) in contacts.iter() {
-        println!("Calling {}: {:?}", contact, number); 
+    for (name, hobby) in contacts.iter() {
+        println!("Calling {}: {:?}", name, hobby); 
     }
 }
