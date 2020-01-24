@@ -1,4 +1,4 @@
-use postgres::{Client, NoTls};
+use postgres::{Client, NoTls, types};
 use std::collections::HashMap;
 extern crate colored; // not needed in Rust 2018
 use colored::*;
@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", "where is the problem");
     client.simple_query("
         CREATE TABLE following_relation (
-            id               SERIAL NOT NULL PRIMARY KEY,
+            
             relation         JSON NOT NULL
         )
     ")?;
@@ -47,6 +47,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("{{name: {}, hobby: {:?}}}", name.to_string().yellow(), hobby); 
     }
     
+
+    let mut a = "czfzdxx";
+    let mut b = "Smoking";
+    client.execute(
+        r#"INSERT INTO following_relation(relation) 
+           VALUE ('{"name" : $1, "hobby" : $2}')"#,
+        &[&a, &b],
+    )?;
+
+    /*
     for (name, hobby) in contacts.iter() {
         client.query(
             r#"INSERT INTO following_relation(relation) 
@@ -54,6 +64,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             &[&name, &hobby],
         )?;
     }
+    */
     /*
     for row in client.query("SELECT id, relation FROM following_relation", &[])? {
         let id: i32 = row.get(0);

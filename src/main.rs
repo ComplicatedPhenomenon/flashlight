@@ -1,65 +1,40 @@
-use postgres::{Client, NoTls};
-use std::collections::HashMap;
-extern crate colored; // not needed in Rust 2018
-use colored::*;
+#[macro_use]
+extern crate diesel;
+extern crate dotenv;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = Client::connect("host=127.0.0.1 user=postgres", NoTls)?;
+use diesel::prelude::*;
+use diesel::pg::PgConnection;
+use dotenv::dotenv;
+use std::env;
 
-    client.simple_query("
-        DROP TABLE 
-        IF EXISTS following_relation;
-        ")?;
+pub fn establish_connection() -> PgConnection {
+    dotenv().ok();
 
-    println!("{}", "where is the problem");
-    client.simple_query("
-        CREATE TABLE following_relation (
-            id               SERIAL NOT NULL PRIMARY KEY,
-            relation         JSON NOT NULL
-        )
-    ")?;
+    let database_url = env::var("DATABASE_URL")
+        .expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .expect(&format!("Error connecting to {}", database_url))
+}
 
-    let mut contacts = HashMap::new();
-    let mut v: Vec<String> = Vec::new();
-
-    v.push("ComplicatedPhenomenon".to_string());
-    v.push("CZFZDXX".to_string());
-    contacts.insert("Daniel", v.clone());
-
-    v = vec!["jump".to_owned(), "jog".to_string()];
-    contacts.insert("Ashley", v.clone());
-
-    v = vec!["swim".to_owned(), "football".to_owned(), "rap".to_string()];
-    contacts.insert("Katie", v.clone());
-
-    v = vec!["flight".to_owned(), "fishing".to_owned()];
-    contacts.insert("Robert", v.clone());
-
-    v = vec!["dance".to_owned(), "piano".to_owned()];
-    contacts.insert("Jazz", v.clone());
-
-
-    // `HashMap::iter()` returns an iterator that yields 
-    // (&'a key, &'a value) pairs in arbitrary order.
-
-    println!("{}", "We are fine until now");
-    for (name, hobby) in contacts.iter() {
-        println!("{{name: {}, hobby: {:?}}}", name.to_string().yellow(), hobby); 
+fn main() {
+    let connection = establish_connection();
+    #[derive(Insertable)]
+    #[table_name="users"]
+    struct NewUser<'a> {
+        name: &'a str,
+        hobby: Vec<&'a str>,
     }
-    
-    for (name, hobby) in contacts.iter() {
-        client.query(
-            r#"INSERT INTO following_relation(relation) 
-               VALUE ('{"name" : $1, "hobby" : $2}')"#,
-            &[&name, &hobby],
-        )?;
-    }
-    /*
-    for row in client.query("SELECT id, relation FROM following_relation", &[])? {
-        let id: i32 = row.get(0);
-        let relation  = row.get(1);
-        println!("found person: {}", id);
-    }*/
+
+    let new_users: Vec<NewUser> = Vec::new();
+    let mut hobby_list: Vec<String> = Vec::new();
+    hobby_list = vec!["jump".to_owned(), "jog".to_string()];
+    new_users.push( NewUser { name: "Sean", hobby:  hobby_list});
+    hobby_list = vec!["swim".to_owned(), "football".to_owned(), "rap".to_string()];
+    new_users.push( NewUser { name: "Jenny", hobby: hobby_list});
+
+    insert_into(users)
+        .values(&new_users)
+        .execute(&connection);
 
     Ok(())
 }
