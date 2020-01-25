@@ -9,12 +9,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     client.simple_query("
         DROP TABLE 
         IF EXISTS following_relation;
+        DROP TABLE 
+        IF EXISTS person;
         ")?;
 
     println!("{}", "where is the problem");
     client.simple_query("
         CREATE TABLE following_relation (
-            
+            id      SERIAL PRIMARY KEY,
             relation         JSON NOT NULL
         )
     ")?;
@@ -46,8 +48,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for (name, hobby) in contacts.iter() {
         println!("{{name: {}, hobby: {:?}}}", name.to_string().yellow(), hobby); 
     }
-    
 
+    client.simple_query("
+    CREATE TABLE person (
+    id      SERIAL PRIMARY KEY,
+    name    TEXT NOT NULL,
+    data    BYTEA
+    )
+    ")?;
+
+    let name = "Ferris";
+    let data = None::<&[u8]>;
+    client.execute(
+    "INSERT INTO person (name, data) VALUES ($1, $2)",
+    &[&name, &data],
+    )?;
+
+    for row in client.query("SELECT id, name, data FROM person", &[])? {
+    let id: i32 = row.get(0);
+    let name: &str = row.get(1);
+    let data: Option<&[u8]> = row.get(2);
+
+    println!("found person: {} {} {:?}", id, name, data);
+    }
+        
+/*
     let mut a = "czfzdxx";
     let mut b = "Smoking";
     client.execute(
@@ -55,7 +80,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
            VALUE ('{"name" : $1, "hobby" : $2}')"#,
         &[&a, &b],
     )?;
-
+*/
     /*
     for (name, hobby) in contacts.iter() {
         client.query(
