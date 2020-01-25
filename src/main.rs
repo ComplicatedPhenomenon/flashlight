@@ -3,6 +3,12 @@ use std::collections::HashMap;
 extern crate colored; // not needed in Rust 2018
 use colored::*;
 
+pub struct Json<T>(pub T);
+struct Contacts {
+    name : String,
+    hobby: Vec<String>
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut client = Client::connect("host=127.0.0.1 user=postgres", NoTls)?;
 
@@ -43,7 +49,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // `HashMap::iter()` returns an iterator that yields 
     // (&'a key, &'a value) pairs in arbitrary order.
-
     println!("{}", "We are fine until now");
     for (name, hobby) in contacts.iter() {
         println!("{{name: {}, hobby: {:?}}}", name.to_string().yellow(), hobby); 
@@ -72,30 +77,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("found person: {} {} {:?}", id, name, data);
     }
         
-/*
-    let mut a = "czfzdxx";
-    let mut b = "Smoking";
-    client.execute(
-        r#"INSERT INTO following_relation(relation) 
-           VALUE ('{"name" : $1, "hobby" : $2}')"#,
-        &[&a, &b],
-    )?;
-*/
-    /*
-    for (name, hobby) in contacts.iter() {
-        client.query(
-            r#"INSERT INTO following_relation(relation) 
-               VALUE ('{"name" : $1, "hobby" : $2}')"#,
-            &[&name, &hobby],
-        )?;
-    }
-    */
-    /*
-    for row in client.query("SELECT id, relation FROM following_relation", &[])? {
-        let id: i32 = row.get(0);
-        let relation  = row.get(1);
-        println!("found person: {}", id);
-    }*/
+
+    let message = Contacts{name : "John".to_string(), hobby: v};
+    println!("name: {}, hobby: {:?}", message.name, message.hobby);
+
+    /*client.execute("INSERT INTO following_relation(relation) 
+                    VALUE (relation : $1)",  &[&message])?;*/
 
     Ok(())
 }
