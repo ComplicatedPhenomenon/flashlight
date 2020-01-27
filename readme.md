@@ -40,7 +40,7 @@ https://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/
 ```sh
 pg_dump -U postgres -h localhost postgres >> testPostgreSQL.sql
 ```
-
+#### Basic operation with `psql`
 ```sh
 $ psql -h localhost -U postgres
 psql (10.10 (Ubuntu 10.10-0ubuntu0.18.04.1))
@@ -70,27 +70,3 @@ postgres=# \dt
  public | test1              | table | postgres
 (2 rows)
 ```
-
-
-`pub struct Json<T>(pub T);`
-
-A wrapper type to allow arbitrary Serialize/Deserialize types to convert to Postgres JSON values.
-
-Trait Implementations
-
-`impl<T> Debug for Json<T>`
-
-where
-
-    T: Debug, 
-
-`impl<'a, T> FromSql<'a> for Json<T>`
-where
-
-    T: Deserialize<'a>, 
-
-`impl<T> ToSql for Json<T>`
-
-where
-
-    T: Serialize + Debug, 
