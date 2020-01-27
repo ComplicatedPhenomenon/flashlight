@@ -70,3 +70,27 @@ postgres=# \dt
  public | test1              | table | postgres
 (2 rows)
 ```
+
+
+`pub struct Json<T>(pub T);`
+
+A wrapper type to allow arbitrary Serialize/Deserialize types to convert to Postgres JSON values.
+
+Trait Implementations
+
+`impl<T> Debug for Json<T>`
+
+where
+
+    T: Debug, 
+
+`impl<'a, T> FromSql<'a> for Json<T>`
+where
+
+    T: Deserialize<'a>, 
+
+`impl<T> ToSql for Json<T>`
+
+where
+
+    T: Serialize + Debug, 
