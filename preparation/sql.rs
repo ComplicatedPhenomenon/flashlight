@@ -1,4 +1,3 @@
-/* https://github.com/sfackler/rust-postgres/blob/master/postgres-types/src/serde_json_1.rs */
 use postgres::{Client, NoTls};
 use serde::{Deserialize, Serialize};
 

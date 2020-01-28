@@ -26,8 +26,15 @@ let document = Document::from(body_str);
 ```
 
 ## Write the output to sql
+### Export table to sql file
+`pg_dump <mybase> -t <table> -f testride.sql`
+```sh
+pg_dump -U postgres -h localhost postgres >> testPostgreSQL.sql
+```
 
-### Manage to connect to `PostgreSQL`
+### `rust-postgres` as client
+
+Manage to connect to `PostgreSQL`
 ```
 let mut client = Client::connect("host=127.0.0.1 user=postgres", NoTls)?;
 ```
@@ -35,11 +42,7 @@ Approach: Enable TCP Connections to PostgreSQL
 
 https://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/
 
-### Export table to sql file
-`pg_dump <mybase> -t <table> -f testride.sql`
-```sh
-pg_dump -U postgres -h localhost postgres >> testPostgreSQL.sql
-```
+
 #### Basic operation with `psql`
 ```sh
 $ psql -h localhost -U postgres
@@ -68,5 +71,93 @@ postgres=# \dt
 --------+--------------------+-------+----------
  public | following_relation | table | postgres
  public | test1              | table | postgres
+
+ postgres=# DROP TABLE test1;
 (2 rows)
 ```
+
+
+#### construct object
+Construct the object required by `execute`
+
+0. use `postgres::types::Json`
+
+    Error occurs
+    ```sh
+    error[E0432]: unresolved import `postgres::types::Json`
+    ```
+
+1. Use `serde_json`
+    ```rust
+    let rel = json!( {
+        "name": "czfzdxx".to_string(),
+        "hobby": vec![
+            "basketball".to_string(),
+            "jogging".to_string()
+        ]
+    });
+
+
+    client.execute(
+        r#"INSERT INTO following_relation(relation)
+             VALUE ($1)"#,
+        &[&rel]
+    )?;
+    ```
+
+    Error occurs
+    ```sh
+    error[E0277]: the trait bound `serde_json::value::Value: postgres_types::ToSql` is not satisfied
+    ```
+
+### `diesel` as client
+1. setup the databaseurl
+
+    echo DATABASE_URL=postgres://postgres@localhost/postgres > .env
+
+2. Determine the function for connection 
+  * `PostgreSQL` as backend.
+  *  Establish connection 
+
+    ```rust
+    pub fn establish_connection() -> PgConnection {
+        dotenv().ok();
+
+        let database_url = env::var("DATABASE_URL")
+            .expect("DATABASE_URL must be set");
+        PgConnection::establish(&database_url)
+            .expect(&format!("Error connecting to {}", database_url))
+    }
+    ```
+  * Build table 
+
+    `migrations/up.sql`
+    ```sql
+    CREATE TABLE following_relation (
+            id      SERIAL PRIMARY KEY,
+            relation    JSON NOT NULL)
+    ```
+
+    (before execute `diesel migration run`, Drop proceeding test table in this DB)
+     
+    execute `diesel migration run` will generate `schema.rs` under `src`
+    ```rs
+    table! {
+        following_relation (id) {
+            id -> Int4,
+            relation -> Json,
+        }
+    }
+    ```
+  * construct `model.rs`
+
+    ```rs
+    use serde_json::Value;
+
+    #[derive(Queryable)]
+    pub struct Post {
+        pub id: i32,
+        pub relation: Value,
+    }
+
+    ```
