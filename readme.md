@@ -27,9 +27,8 @@ let document = Document::from(body_str);
 
 ## Write the output to sql
 ### Export table to sql file
-`pg_dump <mybase> -t <table> -f testride.sql`
 ```sh
-pg_dump -U postgres -h localhost postgres >> testPostgreSQL.sql
+pg_dump -U postgres -h localhost -d postgres -t following_relation > following_relation.sql
 ```
 
 ### `rust-postgres` as client
