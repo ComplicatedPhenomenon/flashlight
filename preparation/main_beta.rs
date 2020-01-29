@@ -1,21 +1,12 @@
-extern crate reqwest;
-extern crate select;
 use select::document::Document;
 use select::predicate::{Class};
 pub use select::node;
 use std::collections::HashSet;
-use std::collections::HashMap;
-//use std::fs::File;
-//use std::io::prelude::*;
-//use std::io::Read;
 use std::fmt; 
-extern crate colored; // not needed in Rust 2018
 use colored::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut output = HashMap::new();
-
     let mut level = 0;
     let mut accumulated_name_set = HashSet::new();
     let mut current_level_names: Vec<String> = Vec::new();
@@ -37,17 +28,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         
             let mut  body_str :&str = &body;
             let mut document = Document::from(body_str);
-            
-            for node in document.find(Class("p-org")).take(1){ 
-                for node_1 in document.find(Class("p-label")).take(1){
-                    for  node_2 in document.find(Class("js-user-profile-bio")).take(1){
-                        println!("{} works at: {}, lives in: {}\n descriptions: {}", 
-                        who.to_string().red(),  node.text().to_string().green(), 
-                        node_1.text().to_string().yellow(),
-                        node_2.text().to_string().underline().cyan());
-                    }
-                }    
-            }
             
             // Determine the total number of following's page
             let mut following_number = 0.to_string();
@@ -94,18 +74,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 page_at +=1;
             }
-        output.insert(who.clone(), who_following.clone());
-        accumulated_name_set.insert(who.clone());
+        accumulated_name_set.insert(who.to_string());
         println!("{} is following {:?}", who.red(), who_following);    
         }
     
     println!("{:?}", accumulated_name_set);
     current_level_names = next_level_names;
     level += 1;
-    }
-
-    for (key, value) in output.iter() {
-        println!("{}: {:?}", key, value); 
     }
 
     Ok(())
