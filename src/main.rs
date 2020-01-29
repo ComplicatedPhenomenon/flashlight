@@ -53,12 +53,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut level = 0;
     let mut accumulated_name_set = HashSet::new();
     let mut current_level_names: Vec<String> = Vec::new();
+
+    // the root user start from dr-guangtou
     current_level_names.push("dr-guangtou".to_string());
 
     while level < 4 {
         let mut  next_level_names: Vec<String> = Vec::new();
 
-        
         for who in &current_level_names{
             let mut  who_following: Vec<String> = Vec::new();
             if accumulated_name_set.contains(who){
@@ -97,6 +98,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     continue;
                 }
                 following_number = node.text().to_string();
+                //println!("following number {}", following_number.to_string().yellow());
+            }
+
+            // handle exception following is about tens of thousand
+            if following_number.contains("k") {
+                following_number = "50".to_string();
             }
 
             let following: u32 = following_number
@@ -110,7 +117,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 pages = pages + 1;
                 //println!("pages in total: {:?}", pages);
             }     
-            
+
+            //println!("{}", "Fine!".to_string().blue());
+
             for node in document.find(Class("pl-1")){
                 next_level_names.push(node.text().to_string());
                 who_following.push(node.text().to_string());

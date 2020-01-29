@@ -115,48 +115,57 @@ Construct the object required by `execute`
     echo DATABASE_URL=postgres://postgres@localhost/postgres > .env
 
 2. Determine the function for connection 
-  * `PostgreSQL` as backend.
-  *  Establish connection 
+  
+   * `PostgreSQL` as backend.
 
-    ```rust
-    pub fn establish_connection() -> PgConnection {
-        dotenv().ok();
+   *  Establish connection. 
 
-        let database_url = env::var("DATABASE_URL")
-            .expect("DATABASE_URL must be set");
-        PgConnection::establish(&database_url)
-            .expect(&format!("Error connecting to {}", database_url))
-    }
-    ```
-  * Build table 
+        ```rust
+        pub fn establish_connection() -> PgConnection {
+            dotenv().ok();
 
-    `migrations/up.sql`
-    ```sql
-    CREATE TABLE following_relation (
-            id      SERIAL PRIMARY KEY,
-            relation    JSON NOT NULL)
-    ```
-
-    (before execute `diesel migration run`, Drop proceeding test table in this DB)
-     
-    execute `diesel migration run` will generate `schema.rs` under `src`
-    ```rs
-    table! {
-        following_relation (id) {
-            id -> Int4,
-            relation -> Json,
+            let database_url = env::var("DATABASE_URL")
+                .expect("DATABASE_URL must be set");
+            PgConnection::establish(&database_url)
+                .expect(&format!("Error connecting to {}", database_url))
         }
-    }
-    ```
-  * construct `model.rs`
+        ```
+   * Build table 
 
-    ```rs
-    use serde_json::Value;
+        `migrations/up.sql`
+        ```sql
+        CREATE TABLE following_relation (
+                id      SERIAL PRIMARY KEY,
+                relation    JSON NOT NULL)
+        ```
 
-    #[derive(Queryable)]
-    pub struct Post {
-        pub id: i32,
-        pub relation: Value,
-    }
+        (before execute `diesel migration run`, Drop proceeding test table in this DB)
+        
+        execute `diesel migration run` will generate `schema.rs` under `src`
+        ```rs
+        table! {
+            following_relation (id) {
+                id -> Int4,
+                relation -> Json,
+            }
+        }
+        ```
+    * construct `model.rs`
 
-    ```
+        ```rs
+        use serde_json::Value;
+
+        #[derive(Queryable)]
+        pub struct Post {
+            pub id: i32,
+            pub relation: Value,
+        }
+
+        ```
+
+### Exception handling
+User -`rfthusn` has a very large number of following, it's gonna cause memory overflow.
+
+```sh
+thread 'main' panicked at 'Wanted a number: ParseIntError { kind: InvalidDigit }
+```
