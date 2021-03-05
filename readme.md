@@ -1,30 +1,5 @@
-## Access the useful data
-* start from `szaghi`
-
-  https://github.com/szaghi?tab=following
-
-* next page 
-
-  https://github.com/szaghi?page=2&tab=following
-
-pseudo code
-```py
-s = 'https://github.com/{}?tab=following'
-for i in following: 
-    request(s.format(i))
-```
-
-parse `html` in `Rust` library `select`
-```rs
-let s = r#"<div class="d-table-cell col-9 v-align-top pr-3">
-                <a class="d-inline-block no-underline mb-1" data-hovercard-type="user" data-hovercard-url="/users/reinh-bader/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="/reinh-bader">
-                    <span class="f4 link-gray-dark"></span>
-                    <span class="link-gray pl-1">reinh-bader</span>
-                </a>
-           </div>"#;
-let document = Document::from(body_str);
-```
-
+## web scraping with rust
+* https://kadekillary.work/post/webscraping-rust/
 ## Write the output to sql
 ### Export table to sql file
 ```sh
@@ -42,49 +17,10 @@ Approach: Enable TCP Connections to PostgreSQL
 https://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/
 
 
-#### Basic operation with `psql`
-```sh
-$ psql -h localhost -U postgres
-psql (10.10 (Ubuntu 10.10-0ubuntu0.18.04.1))
-SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
-Type "help" for help.
-
-postgres=# \l
-                                   List of databases
-    Name     |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges   
--------------+----------+----------+-------------+-------------+-----------------------
- diesel_demo | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
- postgres    | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
- template0   | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
-             |          |          |             |             | postgres=CTc/postgres
- template1   | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
-             |          |          |             |             | postgres=CTc/postgres
-(4 rows)
-
-postgres=# \c postgres 
-SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
-You are now connected to database "postgres" as user "postgres".
-postgres=# \dt
-               List of relations
- Schema |        Name        | Type  |  Owner   
---------+--------------------+-------+----------
- public | following_relation | table | postgres
- public | test1              | table | postgres
-
- postgres=# DROP TABLE test1;
-(2 rows)
-```
-
-
 #### construct object
 Construct the object required by `execute`
 
 0. use `postgres::types::Json`
-
-    Error occurs
-    ```sh
-    error[E0432]: unresolved import `postgres::types::Json`
-    ```
 
 1. Use `serde_json`
     ```rust
@@ -104,13 +40,8 @@ Construct the object required by `execute`
     )?;
     ```
 
-    Error occurs
-    ```sh
-    error[E0277]: the trait bound `serde_json::value::Value: postgres_types::ToSql` is not satisfied
-    ```
-
 ### `diesel` as client
-1. setup the databaseurl
+1. setup the database url
 
     echo DATABASE_URL=postgres://postgres@localhost/postgres > .env
 
@@ -166,6 +97,19 @@ Construct the object required by `execute`
 ### Exception handling
 User -`rfthusn` has a very large number of following, it's gonna cause memory overflow.
 
+# trouble shooting
+
 ```sh
-thread 'main' panicked at 'Wanted a number: ParseIntError { kind: InvalidDigit }
+± |master U:3 ?:1 ✗| → cargo run
+    Finished dev [unoptimized + debuginfo] target(s) in 0.63s
+     Running `target/debug/harry_potter`
+2020-12-10 14:49:25.515 CST [19321] FATAL:  role "postgres" does not exist
+Error: Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: Some(Fatal), code: SqlState("28000"), message: "role \"postgres\" does not exist", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("miscinit.c"), line: Some(607), routine: Some("InitializeSessionUserId") }) }
 ```
+先可以在外围试着连接数据库，
+```
+psql -h localhost -U postgres
+
+role “postgres” does not exist
+```
+* https://freethreads.net/2020/06/27/mac-os-x-role-postgres-does-not-exist/

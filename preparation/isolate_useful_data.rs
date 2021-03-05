@@ -1,4 +1,4 @@
-extern crate select;
+//extern crate select;
 use select::document::Document;
 use select::predicate::{Predicate, Attr, Class, Name};
 
